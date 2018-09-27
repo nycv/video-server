@@ -24,6 +24,11 @@ export default class Server {
       res.send('smoke weed everday')
     })
 
+    this.app.get('/test2', (req, res) => {
+      log(req)
+      res.send('lets go')
+    })
+
     // startup listener on specified port
     this.app.listen(this.port, () => console.log(`server listening on port ${this.port}`))
   }
