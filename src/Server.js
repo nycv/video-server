@@ -1,5 +1,6 @@
 import express from 'express'
 import expressWS from 'express-ws'
+import log from './logger'
 
 export default class Server {
   constructor(params) {
@@ -19,6 +20,7 @@ export default class Server {
     })
 
     this.app.get('/test', (req, res) => {
+      log(req)
       res.send('smoke weed everday')
     })
 
