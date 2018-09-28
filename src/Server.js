@@ -1,6 +1,7 @@
 import express from 'express'
 import expressWS from 'express-ws'
 import log from './logger'
+import child_process from 'child_process'
 
 export default class Server {
   constructor(params) {
@@ -13,18 +14,51 @@ export default class Server {
 
 
     // websocket express endpoint
-    this.app.ws('/', (ws, req) => {
+    this.app.ws('/ws', (ws, req) => {
+      this.spawnFFMPEG()
       ws.on('message', (msg) => {
-        console.log('msg', msg)
+        this.handleVideoBlob(msg)
       })
     })
 
     this.app.get('/test', (req, res) => {
-      log(req)
+      log('rest', req)
       res.send('smoke weed everday')
     })
 
     // startup listener on specified port
     this.app.listen(this.port, () => console.log(`server listening on port ${this.port}`))
+  }
+  
+  handleVideoBlob = (blob) => {
+    console.log('blob', blob, typeof blob)
+    //const buff = new Buffer(blob).toString('base64')
+    this.ffmpeg.stdin.write(blob)
+  }
+
+  
+  spawnFFMPEG = () => {
+    this.ffmpeg = child_process.spawn('ffmpeg',
+      [
+        '-f', 'lavfi', '-i', 'anullsrc',
+        '-i', '-',
+        '-shortest', '-vcodec', 'copy',
+        '-f', 'flv',
+        'test.flv'
+
+      ]
+
+    )
+
+    this.ffmpeg.on('close', (code, signal) => {
+      console.log('ffmpeg closed..')
+    })
+
+    this.ffmpeg.stderr.on('data', (data) => {
+      console.log('FFmpeg STDERR', data.toString())
+    })
+    
+    this.ffmpeg.stdin.on('error', (err) => console.log('error in ffmpeg stdin', err))
+    
   }
 }
