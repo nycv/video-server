@@ -19,6 +19,10 @@ export default class Server {
       ws.on('message', (msg) => {
         this.handleVideoBlob(msg)
       })
+      
+      ws.on('close', () => {
+        this.ffmpeg.kill('SIGINT')
+      })
     })
 
     this.app.get('/test', (req, res) => {
