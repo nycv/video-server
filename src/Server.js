@@ -19,7 +19,7 @@ export default class Server {
       ws.on('message', (msg) => {
         this.handleVideoBlob(msg)
       })
-      
+
       ws.on('close', () => {
         this.ffmpeg.kill('SIGINT')
       })
@@ -38,25 +38,23 @@ export default class Server {
     // startup listener on specified port
     this.app.listen(this.port, () => console.log(`server listening on port ${this.port}`))
   }
-  
+
   handleVideoBlob = (blob) => {
     console.log('blob', blob, typeof blob)
     //const buff = new Buffer(blob).toString('base64')
     this.ffmpeg.stdin.write(blob)
   }
 
-  
+
   spawnFFMPEG = () => {
     this.ffmpeg = child_process.spawn('ffmpeg',
       [
         '-f', 'lavfi', '-i', 'anullsrc',
         '-i', '-',
         '-shortest', '-vcodec', 'copy',
-        '-f', 'flv',
-        'test.flv'
-
+        '-f', 'avi',
+        'test.avi'
       ]
-
     )
 
     this.ffmpeg.on('close', (code, signal) => {
@@ -66,8 +64,8 @@ export default class Server {
     this.ffmpeg.stderr.on('data', (data) => {
       console.log('FFmpeg STDERR', data.toString())
     })
-    
+
     this.ffmpeg.stdin.on('error', (err) => console.log('error in ffmpeg stdin', err))
-    
+
   }
 }
