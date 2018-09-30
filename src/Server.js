@@ -3,6 +3,15 @@ import expressWS from 'express-ws'
 import log from './logger'
 import child_process from 'child_process'
 
+
+const fs = require('file-system');
+const {Storage} = require('@google-cloud/storage')
+const storage = new Storage ()
+const myBucket = storage.bucket('nycv-test-bucket');
+const file = myBucket.file('test-file');
+
+
+
 export default class Server {
   constructor(params) {
     this.port = params.port
@@ -53,12 +62,23 @@ export default class Server {
         '-i', '-',
         '-shortest', '-vcodec', 'copy',
         '-f', 'avi',
-        'test.avi'
+        "pipe:1"
       ]
     )
 
+    this.ffmpeg.stdout.on('data', res => {
+      console.log('data')
+      fs.createReadStream('data')
+        .pipe(file.createWriteStream())
+        .on('error', function(err) {})
+        .on('finish', function() {
+    // The file upload is complete.
+  });
+    })
+
     this.ffmpeg.on('close', (code, signal) => {
-      console.log('ffmpeg closed..')
+      // this.postToBucket()
+      console.log('ffmpeg closed.. hopefully posted to cloud')
     })
 
     this.ffmpeg.stderr.on('data', (data) => {
@@ -68,4 +88,22 @@ export default class Server {
     this.ffmpeg.stdin.on('error', (err) => console.log('error in ffmpeg stdin', err))
 
   }
+
+  // postToBucket = () => {
+  //
+  //   fs.createReadStream(child_process.stdout)
+  //     .pipe(file.createWriteStream())
+  //     .on('error', function(err) {
+  //       console.log('error in postToBucket', err)
+  //     })
+  //     .on('finish', function() {
+  //      console.log('The file upload to google cloud is complete.')
+  // });
+  //
+  //
+  //
+  //
+  //
+  // }
+
 }

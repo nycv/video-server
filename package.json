@@ -23,6 +23,7 @@
     "babel-core": "^7.0.0-bridge.0"
   },
   "dependencies": {
+    "@google-cloud/storage": "^2.0.3",
     "express": "^4.16.3",
     "express-ws": "^4.0.0",
     "ffmpeg": "0.0.4",
