@@ -9,30 +9,11 @@ const {Storage} = require('@google-cloud/storage')
 const storage = new Storage ({
   keyFilename: './keyfile.json'
 })
+
 console.log('storage', storage)
+
 const myBucket = storage.bucket('nycv-test-bucket');
 const file = myBucket.file('test-file');
-
-    // fs.createReadStream('./test.mp4')
-    //   .pipe(file.createWriteStream())
-
-
-
-// // Process the file upload and upload to Google Cloud Storage.
-// app.post("/upload", m.single("file"), (req, res, next) => {
-//   const blob = bucket.file(req.file.originalname);
-//   const blobStream = blob.createWriteStream({
-//     metadata: {
-//       contentType: req.file.mimetype
-//     }
-//   });
-//   blobStream.on("error", err => {
-//   });
-//   blobStream.on("finish", () => {
-//   });
-// });
-
-
 
 export default class Server {
   constructor(params) {
@@ -56,15 +37,17 @@ export default class Server {
       })
     })
 
-    this.app.get('/test', (req, res) => {
-      log('rest', req)
-      res.send('smoke weed everday')
-    })
 
-    this.app.get('/test2', (req, res) => {
-      log(req)
-      res.send('lets go')
-    })
+
+    // this.app.get('/test', (req, res) => {
+    //   log('rest', req)
+    //   res.send('smoke weed everday')
+    // })
+    //
+    // this.app.get('/test2', (req, res) => {
+    //   log(req)
+    //   res.send('lets go')
+    // })
 
     // startup listener on specified port
     this.app.listen(this.port, () => console.log(`server listening on port ${this.port}`))
@@ -74,6 +57,7 @@ export default class Server {
     //console.log('blob', blob, typeof blob) //logging front end blobs
     //const buff = new Buffer(blob).toString('base64')
     this.ffmpeg.stdin.write(blob)
+    console.log(process.stdout)
   }
 
   captureOutput = (data) => {
@@ -91,26 +75,8 @@ export default class Server {
       ]
     )
 
-    this.ffmpeg.stdin.on('data', res => {
-      console.log('data', res)
-    })
-    //
-    //   try {
-    //   file.createWriteStream(res)
-    // }
-    //   catch (err) {
-    //     console.log(err)
-    //   }
-    // })
 
-//
-
-    // this.ffmpeg.stdout.pipe(process.stdout)
-    //
-    // process.stdout.pipe(
-    //   file.createWriteStream()
-    //     .on('error', function(err) { console.log("createWriteStream error: ", err)}))
-
+    this.ffmpeg.stdout.pipe(process.stdout)
 
     this.ffmpeg.on('close', (code, signal) => {
       console.log('ffmpeg closed.. ')
@@ -125,5 +91,6 @@ export default class Server {
     this.ffmpeg.stdin.on('error', (err) => console.log('error in ffmpeg stdin', err))
 
   }
+
 
 }
