@@ -2,6 +2,7 @@ import express from 'express'
 import expressWS from 'express-ws'
 import log from './logger'
 import child_process from 'child_process'
+import fs from 'fs'
 
 
 const {Storage} = require('@google-cloud/storage')
@@ -11,6 +12,11 @@ const storage = new Storage ({
 console.log('storage', storage)
 const myBucket = storage.bucket('nycv-test-bucket');
 const file = myBucket.file('test-file');
+
+    // fs.createReadStream('./test.mp4')
+    //   .pipe(file.createWriteStream())
+
+
 
 // // Process the file upload and upload to Google Cloud Storage.
 // app.post("/upload", m.single("file"), (req, res, next) => {
@@ -65,7 +71,7 @@ export default class Server {
   }
 
   handleVideoBlob = (blob) => {
-    console.log('blob', blob, typeof blob)
+    //console.log('blob', blob, typeof blob) //logging front end blobs
     //const buff = new Buffer(blob).toString('base64')
     this.ffmpeg.stdin.write(blob)
   }
@@ -85,8 +91,9 @@ export default class Server {
       ]
     )
 
-    // this.ffmpeg.stdout.on('data', res => {
-    //   console.log('data', res)
+    this.ffmpeg.stdin.on('data', res => {
+      console.log('data', res)
+    })
     //
     //   try {
     //   file.createWriteStream(res)
@@ -95,21 +102,19 @@ export default class Server {
     //     console.log(err)
     //   }
     // })
-    this.ffmpeg.stdout.pipe(process.stdout)
 
-    process.stdout.pipe(
-      file.createWriteStream()
-        .on('error', function(err) { console.log("createWriteStream error: ", err)}))
+//
+
+    // this.ffmpeg.stdout.pipe(process.stdout)
+    //
+    // process.stdout.pipe(
+    //   file.createWriteStream()
+    //     .on('error', function(err) { console.log("createWriteStream error: ", err)}))
 
 
     this.ffmpeg.on('close', (code, signal) => {
       console.log('ffmpeg closed.. ')
-      //     fs.createReadStream('./test.avi')
-      //       .pipe(file.createWriteStream())
-      //       .on('error', function(err) {})
-      //       .on('finish', function() {
-      //   // The file upload is complete.
-      // });
+
     })
 
     this.ffmpeg.stderr.on('data', (data) => {
