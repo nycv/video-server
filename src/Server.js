@@ -4,16 +4,18 @@ import log from './logger'
 import child_process from 'child_process'
 import fs from 'fs'
 
+const { Transform } = require('stream');
 
 const {Storage} = require('@google-cloud/storage')
 const storage = new Storage ({
-  keyFilename: './keyfile.json'
+  keyFilename: './keyfile.json',
+  projectId: 'nycv-217819'
 })
 
 console.log('storage', storage)
 
 const myBucket = storage.bucket('nycv-test-bucket');
-const file = myBucket.file('test-file');
+const file = myBucket.file('test-file.avi');
 
 export default class Server {
   constructor(params) {
@@ -39,18 +41,47 @@ export default class Server {
 
 
 
-    // this.app.get('/test', (req, res) => {
-    //   log('rest', req)
-    //   res.send('smoke weed everday')
-    // })
-    //
-    // this.app.get('/test2', (req, res) => {
-    //   log(req)
-    //   res.send('lets go')
-    // })
+    //test-ping for server
+    this.app.get('/test', (req, res) => {
+      log('rest', req)
+      res.send('smoke weed everday')
+    })
+
+
+    storage
+      .getBuckets()
+      .then((results) => {
+        const buckets = results[0];
+
+        console.log('Buckets:');
+        buckets.forEach((bucket) => {
+          console.log(bucket.name);
+        });
+      })
+      .catch((err) => {
+        console.error('ERROR:', err);
+      });
+    //construct duplex stream
+  //   function xxcreateDuplexStream(){
+  //     return new stream.Transform({
+  //       writableObjectMode: true,
+  //       transform: transformFunc
+  //     });
+  //
+  //   function transformFunc(chunk, encoding, callback){
+  //     let data = chunk;
+  //
+  //     callback(null, data);
+  //   }
+  // }
+  //
+  // let myDupelexStream = xxcreateDuplexStream();
 
     // startup listener on specified port
     this.app.listen(this.port, () => console.log(`server listening on port ${this.port}`))
+
+
+
   }
 
   handleVideoBlob = (blob) => {
@@ -76,7 +107,7 @@ export default class Server {
     )
 
 
-    this.ffmpeg.stdout.pipe(process.stdout)
+    this.ffmpeg.stdout.pipe(this.file.createWriteStream())
 
     this.ffmpeg.on('close', (code, signal) => {
       console.log('ffmpeg closed.. ')
