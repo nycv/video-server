@@ -1,0 +1,33 @@
+{
+  "name": "video-server",
+  "version": "0.0.1",
+  "description": "express video and sensor timestamping server",
+  "main": "index.js",
+  "scripts": {
+    "start": "npx babel-node src",
+    "storage": "npx babel-node ./scripts/videoToStorage.js"
+  },
+  "keywords": [
+    "video",
+    "streaming"
+  ],
+  "author": "Sean Pollock, Glenn Wolfe",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/cli": "^7.1.0",
+    "@babel/core": "^7.1.0",
+    "@babel/node": "^7.0.0",
+    "@babel/plugin-proposal-class-properties": "^7.1.0",
+    "@babel/plugin-proposal-object-rest-spread": "^7.0.0",
+    "@babel/preset-env": "^7.1.0",
+    "babel-core": "^7.0.0-bridge.0"
+  },
+  "dependencies": {
+    "@google-cloud/storage": "^2.0.3",
+    "express": "^4.16.3",
+    "express-ws": "^4.0.0",
+    "ffmpeg": "0.0.4",
+    "hls-server": "^1.5.0"
+  },
+  "repository": "https:// github.com/nycv/video-server"
+}
